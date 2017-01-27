@@ -2651,6 +2651,89 @@ func TestSchemaMap_Diff(t *testing.T) {
 				},
 			},
 		},
+
+		{
+			Name: "Removal of TypeList should cause all nested fields w/ Default to be removed too",
+			Schema: map[string]*Schema{
+				"deployment_group_name": &Schema{
+					Type:     TypeString,
+					Required: true,
+					ForceNew: true,
+				},
+
+				"alarm_configuration": &Schema{
+					Type:     TypeList,
+					Optional: true,
+					MaxItems: 1,
+					Elem: &Resource{
+						Schema: map[string]*Schema{
+							"alarms": &Schema{
+								Type:     TypeSet,
+								Optional: true,
+								Set:      HashString,
+								Elem:     &Schema{Type: TypeString},
+							},
+
+							"enabled": &Schema{
+								Type:     TypeBool,
+								Optional: true,
+							},
+
+							"ignore_poll_alarm_failure": &Schema{
+								Type:     TypeBool,
+								Optional: true,
+								Default:  false,
+							},
+						},
+					},
+				},
+			},
+
+			State: &terraform.InstanceState{
+				Attributes: map[string]string{
+					"alarm_configuration.#":                           "1",
+					"alarm_configuration.0.alarms.#":                  "1",
+					"alarm_configuration.0.alarms.2356372769":         "foo",
+					"alarm_configuration.0.enabled":                   "true",
+					"alarm_configuration.0.ignore_poll_alarm_failure": "false",
+					"deployment_group_name":                           "foo-group-32345345345",
+				},
+			},
+
+			Config: map[string]interface{}{
+				"deployment_group_name": "foo-group-32345345345",
+			},
+
+			Diff: &terraform.InstanceDiff{
+				Attributes: map[string]*terraform.ResourceAttrDiff{
+					"alarm_configuration.#": &terraform.ResourceAttrDiff{
+						Old:        "1",
+						New:        "0",
+						NewRemoved: false,
+					},
+					"alarm_configuration.0.alarms.#": &terraform.ResourceAttrDiff{
+						Old:        "1",
+						New:        "0",
+						NewRemoved: false,
+					},
+					"alarm_configuration.0.alarms.2356372769": &terraform.ResourceAttrDiff{
+						Old:        "foo",
+						New:        "",
+						NewRemoved: true,
+					},
+					"alarm_configuration.0.enabled": &terraform.ResourceAttrDiff{
+						Old:        "true",
+						New:        "false",
+						NewRemoved: true,
+					},
+					"alarm_configuration.0.ignore_poll_alarm_failure": &terraform.ResourceAttrDiff{
+						Old:        "",
+						New:        "",
+						NewRemoved: true,
+					},
+				},
+			},
+		},
 	}
 
 	for i, tc := range cases {

@@ -634,6 +634,17 @@ func (m schemaMap) InternalValidate(topSchemaMap schemaMap) error {
 	return nil
 }
 
+func (m schemaMap) markDefaultAsRemoved(
+	k string,
+	schema *Schema,
+	diff *terraform.InstanceDiff) {
+	if schema.Default != nil {
+		diff.Attributes[k] = schema.finalizeDiff(&terraform.ResourceAttrDiff{
+			NewRemoved: true,
+		})
+	}
+}
+
 func (m schemaMap) diff(
 	k string,
 	schema *Schema,
@@ -764,6 +775,13 @@ func (m schemaMap) diffList(
 				err := m.diff(subK, schema, diff, d, all)
 				if err != nil {
 					return err
+				}
+
+				// If parent list is being removed, then remove all subfields
+				// We process these separately because type-specific diff functions
+				// lack the context (hierarchy of fields)
+				if changed && newLen == 0 {
+					m.markDefaultAsRemoved(subK, schema, diff)
 				}
 			}
 		}
