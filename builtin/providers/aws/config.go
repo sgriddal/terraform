@@ -314,31 +314,32 @@ func (c *Config) Client() (interface{}, error) {
 // ValidateRegion returns an error if the configured region is not a
 // valid aws region and nil otherwise.
 func (c *Config) ValidateRegion() error {
-	var regions = []string{
-		"ap-northeast-1",
-		"ap-northeast-2",
-		"ap-south-1",
-		"ap-southeast-1",
-		"ap-southeast-2",
-		"ca-central-1",
-		"cn-north-1",
-		"eu-central-1",
-		"eu-west-1",
-		"eu-west-2",
-		"sa-east-1",
-		"us-east-1",
-		"us-east-2",
-		"us-gov-west-1",
-		"us-west-1",
-		"us-west-2",
-	}
+//	var regions = []string{
+//		"ap-northeast-1",
+//		"ap-northeast-2",
+//		"ap-south-1",
+//		"ap-southeast-1",
+//		"ap-southeast-2",
+//		"ca-central-1",
+//		"cn-north-1",
+//		"eu-central-1",
+//		"eu-west-1",
+//		"eu-west-2",
+//		"sa-east-1",
+//		"us-east-1",
+//		"us-east-2",
+//		"us-gov-west-1",
+//		"us-west-1",
+//		"us-west-2",
+		return nil
+	//Renjith- It is not necessary to validate region}
 
-	for _, valid := range regions {
-		if c.Region == valid {
-			return nil
-		}
-	}
-	return fmt.Errorf("Not a valid region: %s", c.Region)
+//	for _, valid := range regions {
+//		if c.Region == valid {
+//			return nil
+//		}
+//	}
+//	return fmt.Errorf("Not a valid region: %s", c.Region)
 }
 
 // Validate credentials early and fail before we do any graph walking.
